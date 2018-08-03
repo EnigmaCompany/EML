@@ -203,6 +203,40 @@ class CampLuther:
 
             time.sleep(delay)
 
+    def trainRough(self, training_data):
+        record_loss = (None, self.variables)
+        while True:
+            for k in range(0, 1000):
+                if not self.input_data_num == 1:
+                    var_num = self.input_data_num * 4 + 3
+                else:
+                    var_num = 3
+
+                variables = []
+                for i in range(0, var_num):
+                    variables.append(random.randint(-5, 6))
+
+                equation_losses = []
+                for i in training_data:
+                    equation_result = self.calculate(i[0], variables)
+                    equation_losses.append(abs(equation_result - i[1]))
+                equation_loss = statistics.mean(equation_losses)
+
+                if record_loss[0] == None:
+                    record_loss = (equation_loss, variables)
+                    self.variables = variables
+                    print(record_loss)
+                elif record_loss[0] > equation_loss:
+                    record_loss = (equation_loss, variables)
+                    self.variables = variables
+                    print(record_loss)
+
+                save_file = open(self.save, "w")
+                save_file.write(str(self.variables))
+
+    def maybeRough():
+        pass
+
 
     def train(self, train_steps=None, traning_data=None, quiet=False, delay=0):
         # if train_steps == None:
