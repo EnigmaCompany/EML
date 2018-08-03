@@ -1,5 +1,8 @@
+# TODO: Different shift value for each Variables
+
 import random
 import time
+import statistics
 
 class CampLuther:
     def __init__(self, input_data_num, save, target_loss=1):
@@ -19,6 +22,7 @@ class CampLuther:
 
             for i in range(0, var_num):
                 self.variables.append(random.randint(0, 50))
+                # self.variables.append(0)
 
             save_file = open(save, "w")
             save_file.write(str(self.variables))
@@ -52,33 +56,53 @@ class CampLuther:
         return newVar
 
     def train_core(self, training_data=None, quiet=False, delay=0):
-        for i in training_data:
+        try:
+            target_reached_status = self.loss < self.target_loss
+        except:
+            target_reached_status = False
+        # last_vars = None
+        last_loss = None
+        last_checkpoint_loss = None
+        locked_var = []
+        while not target_reached_status:
+            error = ""
             try:
-                target_reached_status = self.loss < self.target_loss
-            except:
-                target_reached_status = False
-            # last_vars = None
-            last_loss = None
-            while not target_reached_status:
-                error = None
-                try:
+                higher_equation_losses = []
+                for i in training_data:
                     higher_equation_result = self.calculate(i[0], self.higherEquation())
-                    higher_equation_loss = abs(higher_equation_result - i[1])
-                except:
-                    error = "h"
-                try:
+                    higher_equation_losses.append(abs(higher_equation_result - i[1]))
+                higher_equation_loss = statistics.mean(higher_equation_losses)
+            except:
+                error = error + "h"
+            try:
+                lower_equation_losses = []
+                for i in training_data:
                     lower_equation_result = self.calculate(i[0], self.lowerEquation())
-                    lower_equation_loss = abs(lower_equation_result - i[1])
-                except:
-                    error = "l"
-                if not error == None:
-                    if error == "l":
-                        self.variables = self.higherEquation()
-                        self.loss = higher_equation_loss
-                    else:
-                        self.variables = self.lowerEquation()
-                        self.loss = lower_equation_loss
+                    lower_equation_losses.append(abs(lower_equation_result - i[1]))
+                lower_equation_loss = statistics.mean(lower_equation_losses)
+            except:
+                error = error + "l"
+            # print(error)
+            # if self.loss == None:
+            #     self.loss = statistics.mean((higher_equation_loss, lower_equation_loss)) ** 2
+            #
+            # if higher_equation_loss > self.loss and lower_equation_loss > self.loss and self.var_to_be_changed not in locked_var:
+            #     # self.shift_value /= 10
+            #     locked_var.append(self.var_to_be_changed)
+            if False:
+                pass
+            elif not error == "":
+                if error == "l":
+                    self.variables = self.higherEquation()
+                    self.loss = higher_equation_loss
+                elif error == "h":
+                    self.variables = self.lowerEquation()
+                    self.loss = lower_equation_loss
                 else:
+                    self.shift_value /= 10
+                    locked_var = []
+            else:
+                if not self.var_to_be_changed in locked_var:
                     if higher_equation_loss < lower_equation_loss:
                         self.variables = self.higherEquation()
                         self.loss = higher_equation_loss
@@ -86,45 +110,98 @@ class CampLuther:
                         self.variables = self.lowerEquation()
                         self.loss = lower_equation_loss
 
-                if self.var_to_be_changed == len(self.variables) - 1:
-                    self.var_to_be_changed = 0
-                # elif self.var_to_be_changed = 0:
-                #     if not last_vars == None:
-                #         if last_vars == self.variables:
-                #             self.shift_value /= 10
-                #     print(last_vars)
-                #     last_vars = self.variables
-                else:
-                    self.var_to_be_changed += 1
+            if not last_loss == None:
+                if self.loss - last_loss > 0 and not self.var_to_be_changed in locked_var:
+                    locked_var.append(self.var_to_be_changed)
+                    self.shift_value /= 1
 
-                # print(last_loss)
+            if self.var_to_be_changed == len(self.variables) - 1:
+                self.var_to_be_changed = 0
 
-                # if not last_loss == None:
-                #     # print(abs(last_loss - self.loss))
-                #     # print(self.shift_value)
-                #     # if abs(last_loss - self.loss) < (self.shift_value):
-                #     if self.loss < (self.shift_value):
-                #         self.shift_value /= 10
-                #         # print(self.shift_value)
-                #     # elif last_loss == self.loss:
-                #     #     self.shift_value /= 2
-                #     elif self.loss > (self.shift_value * 10):
-                #         self.shift_value *= 10
+                if not last_loss == None:
+                    # if abs(self.loss) < self.shift_value :
+                    # if round(self.loss, len(str(1 / self.shift_value))) - round(last_loss, len(str(1 / self.shift_value))) == float(0):
+                    if self.loss < self.shift_value:
+                        self.shift_value /= 10
+                        self.loss == None
+                        locked_var = []
 
-                if self.loss < self.shift_value:
-                    self.shift_value /= 10
+            if len(locked_var) == len(self.variables):
+                locked_var = []
+                self.shift_value /= 10
+                self.loss == None
 
-                last_loss = self.loss
+            # elif self.var_to_be_changed = 0:
+            #     if not last_vars == None:
+            #         if last_vars == self.variables:
+            #             self.shift_value /= 10
+            #     print(last_vars)
+            #     last_vars = self.variables
+            else:
+                self.var_to_be_changed += 1
 
-                self.done_train_steps += 1
-                if not quiet:
-                    print("Step " + str(self.done_train_steps) + " done. Loss: " + str(self.loss) + " Last Loss: " + str(last_loss) + " Shift Value: " + str(self.shift_value) + " Variables: " + str(self.variables))
-                    pass
-                if str(self.done_train_steps)[-5:] == "00000":
-                    save_file = open(self.save, "w")
-                    save_file.write(str(self.variables))
+            # print(last_loss)
 
-                time.sleep(delay)
+            # if not last_loss == None:
+            #     # print(abs(last_loss - self.loss))
+            #     # print(self.shift_value)
+            #     # if abs(last_loss - self.loss) < (self.shift_value):
+            #     if self.loss < (self.shift_value):
+            #         self.shift_value /= 10
+            #         # print(self.shift_value)
+            #     # elif last_loss == self.loss:
+            #     #     self.shift_value /= 2
+            #     elif self.loss > (self.shift_value * 10):
+            #         self.shift_value *= 10
+
+            last_loss = self.loss
+
+            print(locked_var)
+
+
+            self.done_train_steps += 1
+            if not quiet:
+                # print("Step " + str(self.done_train_steps) + " done. Loss: " + str(self.loss) + " Last Loss: " + str(last_loss) + " Shift Value: " + str(self.shift_value) + " Variables: " + str(self.variables))
+                print("Step " + str(self.done_train_steps) + " done. Loss: " + str(self.loss) + " Last Loss: " + str(last_loss) + " Shift Value: " + str(self.shift_value) + " Variables: " + str(self.variables))
+            if str(self.done_train_steps)[-5:] == "00000":
+                save_file = open(self.save, "w")
+                save_file.write(str(self.variables))
+
+            # if str(self.done_train_steps)[-5:] == "00000":
+            #     if not last_checkpoint_loss == None:
+            #         # if last_checkpoint_loss - self.loss < self.shift_value * 10:
+            #         if self.loss > 0.5:
+            #         # if False:
+            #             if not self.input_data_num == 1:
+            #                 var_num = self.input_data_num * 4 + 3
+            #             else:
+            #                 var_num = 3
+            #
+            #             self.variables = []
+            #             for i in range(0, var_num):
+            #                 self.variables.append(random.randint(0, 50))
+            #             last_checkpoint_loss = None
+            #             # pass
+            #         else:
+            #             last_checkpoint_loss = self.loss
+            #     else:
+            #         last_checkpoint_loss = self.loss
+
+            if str(self.done_train_steps)[-3:] == "000":
+                # if self.var_to_be_changed == 0 and not last_checkpoint_loss == 0:
+                if not last_checkpoint_loss == None:
+                    print(self.loss)
+                    print(last_checkpoint_loss)
+                    if last_checkpoint_loss - self.loss < self.shift_value:
+                        print("locked var reset")
+                        locked_var = []
+
+                last_checkpoint_loss = self.loss
+
+                # time.sleep(3)
+
+
+            time.sleep(delay)
 
 
     def train(self, train_steps=None, traning_data=None, quiet=False, delay=0):
@@ -146,7 +223,10 @@ class CampLuther:
 
         for i in self.equation_structure[:]:
             if len(i) == 1:
-                final_calculation += variables[var_scan_pos] * input_data[input_data_scan_pos] ** variables[var_scan_pos + 1]
+
+                # final_calculation += variables[var_scan_pos] * input_data[input_data_scan_pos] ** variables[var_scan_pos + 1]
+                final_calculation += variables[var_scan_pos] * input_data[input_data_scan_pos]
+
                 var_scan_pos += 2
                 input_data_scan_pos += 1
             else:
@@ -155,14 +235,23 @@ class CampLuther:
                 for j in i:
                     # # print(input_data_scan_pos)
                     # # print(input_data[j])
-                    bubble_calculation += variables[var_scan_pos] * input_data[j] ** variables[var_scan_pos + 1]
+
+
+                    # bubble_calculation += variables[var_scan_pos] * input_data[j] ** variables[var_scan_pos + 1]
+                    bubble_calculation += variables[var_scan_pos] * input_data[j]
+
                     # # print(bubble_calculation)
                     var_scan_pos += 2
                     input_data_scan_pos += 1
                 # print(bubble_calculation)
                 # print(variables[var_scan_pos + 1])
                 # print(variables[var_scan_pos])
-                bubble_calculation = bubble_calculation * variables[var_scan_pos] ** variables[var_scan_pos + 1]
+
+
+                # bubble_calculation = bubble_calculation * variables[var_scan_pos] ** variables[var_scan_pos + 1]
+                bubble_calculation = bubble_calculation * variables[var_scan_pos]
+
+
                 # print(bubble_calculation)
                 final_calculation += bubble_calculation
                 # print(final_calculation)
