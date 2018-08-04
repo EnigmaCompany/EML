@@ -55,6 +55,13 @@ predict_x = [
 	[0.5, 1.5, 2.1]
 ]
 
+predict_x = [
+	[6.3],
+	[2.5],
+	[5.0],
+	[1.9]
+]
+
 ## iterate over test cases' columns
 for i in range(0, len(predict_x[0])):
 	## get prdictions from grouse lib
