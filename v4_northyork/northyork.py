@@ -68,6 +68,7 @@ class NorthYork:
         return new_gene
 
     def mutate(self, gene, mutation_level=None):
+        # print("m " + str(gene))
         if mutation_level == None:
             mutation_level = random.randint(0, 50)
         orig_mutation_level = mutation_level
@@ -87,6 +88,7 @@ class NorthYork:
                     new_gene.append(gene[j])
             gene = new_gene
             # print(mutation_level)
+        # print("n " + str(new_gene))
         return new_gene
 
     def train(self, training_data, mutation_value):
@@ -131,7 +133,7 @@ class NorthYork:
                 # print("reduce")
                 continue_vars = continue_vars[:-1]
             new_genes = []
-            # print(len(continue_vars))
+            print(len(continue_vars))
             for i in range(0, int(len(continue_vars) / 2)):
                 gene_one = continue_vars.pop(0)[0]
                 gene_two = continue_vars.pop(-1)[0]
