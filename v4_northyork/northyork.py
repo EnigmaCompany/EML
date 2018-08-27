@@ -102,7 +102,7 @@ class NorthYork:
             for i in range(0, 1000):
                 variable = []
                 for i in range(0, var_num):
-                    variable.append(random.randint(-5, 6))
+                    variable.append(random.randint(-5, 5))
                 variables.append(variable)
 
 
@@ -114,6 +114,7 @@ class NorthYork:
                 # print(variable)
                 for j in training_data:
                     # print(variable)
+                    # print(variable)
                     losses.append(abs(j[1] - self.calculate(j[0], variable)))
 
                 variables_results.append((variable, statistics.mean(losses)))
@@ -123,11 +124,12 @@ class NorthYork:
 
             variables.sort(key=lambda x: x[1])
             # variables.reverse()
-            print(len(variables))
-            print("Step: " + str(self.done_train_steps + 1) + " Loss: " + str(variables[-1][1]) + " Variable: " + str(variables[-1][0]))
+            # print(len(variables))
+            # pprint.pprint(variables)
+            print("Step: " + str(self.done_train_steps + 1) + " Loss: " + str(variables[0][1]) + " Variable: " + str(variables[0][0]))
             continue_vars = []
             for i in range(0, len(variables)):
-                if random.randint(0, len(variables)) < i:
+                if random.randint(0, len(variables)) > i:
                     continue_vars.append(variables[i])
             if len(continue_vars) % 2 == 1:
                 # print("reduce")
@@ -136,12 +138,21 @@ class NorthYork:
             print(len(continue_vars))
             for i in range(0, int(len(continue_vars) / 2)):
                 gene_one = continue_vars.pop(0)[0]
-                gene_two = continue_vars.pop(-1)[0]
+                gene_two = continue_vars.pop(0)[0]
                 new_genes.append(self.breed(gene_one, gene_two))
+
+            new_genes.append(variables[0][0])
+
+            while len(new_genes) < 800:
+                # print(len(new_genes))
+                new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
 
             while len(new_genes) < 1000:
                 # print(len(new_genes))
-                new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
+                variable = []
+                for i in range(0, var_num):
+                    variable.append(random.randint(-5, 5))
+                new_genes.append(variable)
 
             variables = new_genes
             # pprint.pprint(variables)
