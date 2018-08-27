@@ -3,8 +3,9 @@
 import random
 import time
 import statistics
+import pprint
 
-class CampLuther:
+class NorthYork:
     def __init__(self, input_data_num, save, target_loss=1):
         self.input_data_num = input_data_num
 
@@ -28,9 +29,9 @@ class CampLuther:
             save_file.write(str(self.variables))
 
         self.loss = None
-        self.var_to_be_changed = 0
+        # self.var_to_be_changed = 0
         self.equation_structure  = self._calcEquationStructure()
-        self.shift_value = 1
+        # self.shift_value = 1
         self.done_train_steps = 0
         self.target_loss = target_loss
         self.save = save
@@ -55,8 +56,95 @@ class CampLuther:
         newVar.insert(self.var_to_be_changed, newVar.pop(self.var_to_be_changed) - self.shift_value)
         return newVar
 
-    def train(self):
-        pass
+    def breed(self, gene_one, gene_two):
+        # print((gene_one, gene_two))
+        new_gene = []
+        for i in range(0, len(gene_one)):
+            if random.getrandbits(1):
+                new_gene.append(gene_one[i])
+            else:
+                new_gene.append(gene_two[i])
+        # print(new_gene)
+        return new_gene
+
+    def mutate(self, gene, mutation_level=None):
+        if mutation_level == None:
+            mutation_level = random.randint(0, 50)
+        orig_mutation_level = mutation_level
+
+        while not mutation_level <= 0:
+
+            new_gene = []
+            for j in range(0, len(gene)):
+                dna_to_change = random.randint(0, len(gene))
+                if dna_to_change == j:
+                    change_level = random.randint(0, round(orig_mutation_level / 10))
+                    mutation_level -= change_level
+                    if random.getrandbits(1):
+                        change_level *= -1
+                    new_gene.append(mutation_level + change_level)
+                else:
+                    new_gene.append(gene[j])
+            gene = new_gene
+            # print(mutation_level)
+        return new_gene
+
+    def train(self, training_data, mutation_value):
+        if self.done_train_steps == 0:
+            if not self.input_data_num == 1:
+                var_num = self.input_data_num * 4 + 3
+            else:
+                var_num = 3
+
+            variables = []
+            for i in range(0, 1000):
+                variable = []
+                for i in range(0, var_num):
+                    variable.append(random.randint(-5, 6))
+                variables.append(variable)
+
+
+        while True:
+            # print(variables)
+            variables_results = []
+            for variable in variables:
+                losses = []
+                # print(variable)
+                for j in training_data:
+                    # print(variable)
+                    losses.append(abs(j[1] - self.calculate(j[0], variable)))
+
+                variables_results.append((variable, statistics.mean(losses)))
+
+            variables = variables_results
+
+
+            variables.sort(key=lambda x: x[1])
+            # variables.reverse()
+            print(len(variables))
+            print("Step: " + str(self.done_train_steps + 1) + " Loss: " + str(variables[-1][1]) + " Variable: " + str(variables[-1][0]))
+            continue_vars = []
+            for i in range(0, len(variables)):
+                if random.randint(0, len(variables)) < i:
+                    continue_vars.append(variables[i])
+            if len(continue_vars) % 2 == 1:
+                # print("reduce")
+                continue_vars = continue_vars[:-1]
+            new_genes = []
+            # print(len(continue_vars))
+            for i in range(0, int(len(continue_vars) / 2)):
+                gene_one = continue_vars.pop(0)[0]
+                gene_two = continue_vars.pop(-1)[0]
+                new_genes.append(self.breed(gene_one, gene_two))
+
+            while len(new_genes) < 1000:
+                # print(len(new_genes))
+                new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
+
+            variables = new_genes
+            # pprint.pprint(variables)
+            self.done_train_steps += 1
+
 
     def calculate(self, input_data, variables=None):
         if variables == None:
@@ -69,6 +157,7 @@ class CampLuther:
             if len(i) == 1:
 
                 # final_calculation += variables[var_scan_pos] * input_data[input_data_scan_pos] ** variables[var_scan_pos + 1]
+                # print(variables)
                 final_calculation += variables[var_scan_pos] * input_data[input_data_scan_pos]
 
                 var_scan_pos += 2
