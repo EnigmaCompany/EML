@@ -234,7 +234,7 @@ class CampLuther:
                 save_file = open(self.save, "w")
                 save_file.write(str(self.variables))
 
-    def maybeRough():
+    def train_semi_rough():
         pass
 
 
