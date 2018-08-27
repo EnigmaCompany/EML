@@ -100,7 +100,7 @@ class NorthYork:
             for i in range(0, 1000):
                 variable = []
                 for i in range(0, var_num):
-                    variable.append(random.randint(-50, 50))
+                    variable.append(random.randint(-5, 5))
                 variables.append(variable)
 
 
@@ -136,14 +136,21 @@ class NorthYork:
             # print(len(continue_vars))
             for i in range(0, int(len(continue_vars) / 2)):
                 gene_one = continue_vars.pop(0)[0]
-                gene_two = continue_vars.pop(-1)[0]
+                gene_two = continue_vars.pop(0)[0]
                 new_genes.append(self.breed(gene_one, gene_two))
 
             new_genes.append(variables[0][0])
 
-            while len(new_genes) < 1000:
+            while len(new_genes) < 800:
                 # print(len(new_genes))
                 new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
+
+            while len(new_genes) < 1000:
+                # print(len(new_genes))
+                variable = []
+                for i in range(0, var_num):
+                    variable.append(random.randint(-5, 5))
+                new_genes.append(variable)
 
             variables = new_genes
             # pprint.pprint(variables)
