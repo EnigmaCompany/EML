@@ -143,16 +143,16 @@ class NorthYork:
 
             new_genes.append(variables[0][0])
 
-            while len(new_genes) < 800:
+            while len(new_genes) < 1000:
                 # print(len(new_genes))
                 new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
 
-            while len(new_genes) < 1000:
-                # print(len(new_genes))
-                variable = []
-                for i in range(0, var_num):
-                    variable.append(random.randint(-5, 5))
-                new_genes.append(variable)
+            # while len(new_genes) < 1000:
+            #     # print(len(new_genes))
+            #     variable = []
+            #     for i in range(0, var_num):
+            #         variable.append(random.randint(-5, 5))
+            #     new_genes.append(variable)
 
             variables = new_genes
             # pprint.pprint(variables)
