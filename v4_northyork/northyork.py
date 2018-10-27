@@ -9,11 +9,14 @@ class NorthYork:
     def __init__(self, input_data_num, save, target_loss=1):
         self.input_data_num = input_data_num
 
+        # save_file = open(save, "r")
+        # self.variables = eval(save_file.read())
         try:
             save_file = open(save, "r")
             self.variables = eval(save_file.read())
         except Exception as e:
             print(str(e))
+            print("random")
             self.variables = []
 
             if not input_data_num == 1:
@@ -137,6 +140,10 @@ class NorthYork:
             # print(len(variables))
             # pprint.pprint(variables)
             print("Step: " + str(self.done_train_steps + 1) + " Loss: " + str(variables[0][1]) + " Variable: " + str(variables[0][0]))
+            if (self.done_train_steps + 1) % 10 == 0:
+                save_file = open(self.save, "w")
+                print("write")
+                save_file.write(str(variables[0][0]))
             continue_vars = []
             for i in range(0, len(variables)):
                 if random.randint(0, len(variables)) > i:
@@ -184,11 +191,6 @@ class NorthYork:
             # print(variables)
             self.variables = variables
             # print("done")
-
-            if self.done_train_steps % 10 == 0:
-                save_file = open(self.save, "w")
-                print("write")
-                save_file.write(str(variables[0]))
 
 
     def calculate(self, input_data, variables=None):
