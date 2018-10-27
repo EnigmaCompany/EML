@@ -26,6 +26,7 @@ class NorthYork:
                 # self.variables.append(0)
 
             save_file = open(save, "w")
+            print("write")
             save_file.write(str(self.variables))
 
         self.loss = None
@@ -131,21 +132,34 @@ class NorthYork:
             for i in range(0, len(variables)):
                 if random.randint(0, len(variables)) > i:
                     continue_vars.append(variables[i])
+                # print("random")
             if len(continue_vars) % 2 == 1:
                 # print("reduce")
                 continue_vars = continue_vars[:-1]
             new_genes = []
-            print(len(continue_vars))
+            # print(len(continue_vars))
+            # print(continue_vars)
             for i in range(0, int(len(continue_vars) / 2)):
                 gene_one = continue_vars.pop(0)[0]
-                gene_two = continue_vars.pop(0)[0]
+                gene_two = continue_vars.pop(-1)[0]
                 new_genes.append(self.breed(gene_one, gene_two))
+                # print("breed")
 
             new_genes.append(variables[0][0])
 
             while len(new_genes) < 1000:
                 # print(len(new_genes))
-                new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
+                # print("mutate")
+
+
+                # mutated_variables = self.mutate(continue_vars[random.randint(0, len(continue_vars)) - 1][0], mutation_value)
+                # print(mutated_variables)
+                # new_genes.append(mutated_variables)
+
+                # new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
+                new_genes.append(self.breed(new_genes[random.randint(0, len(new_genes)) - 1], new_genes[random.randint(0, len(new_genes)) - 1]))
+
+                # print("mutated")
 
             # while len(new_genes) < 1000:
             #     # print(len(new_genes))
@@ -157,6 +171,7 @@ class NorthYork:
             variables = new_genes
             # pprint.pprint(variables)
             self.done_train_steps += 1
+            # print("done")
 
 
     def calculate(self, input_data, variables=None):
@@ -205,4 +220,5 @@ class NorthYork:
             final_calculation += variables[-1]
             # print(final_calculation)
 
+        # print("calc")
         return final_calculation
