@@ -22,7 +22,7 @@ class NorthYork:
                 var_num = 3
 
             for i in range(0, var_num):
-                self.variables.append(random.randint(0, 50))
+                self.variables.append(random.randint(-5, 6))
                 # self.variables.append(0)
 
             save_file = open(save, "w")
@@ -102,23 +102,29 @@ class NorthYork:
             else:
                 var_num = 3
 
+            # variables = []
+            # for i in range(0, 1000):
+            #     variable = []
+            #     for i in range(0, var_num):
+            #         variable.append(random.randint(-5, 5))
+            #     variables.append(variable)
+
             variables = []
             for i in range(0, 1000):
-                variable = []
-                for i in range(0, var_num):
-                    variable.append(random.randint(-5, 5))
-                variables.append(variable)
+                variables.append(self.variables)
 
 
         while True:
             # print(variables)
             variables_results = []
+            # print(variables)
             for variable in variables:
                 losses = []
                 # print(variable)
                 for j in training_data:
                     # print(variable)
                     # print(variable)
+                    # print(j)
                     losses.append(abs(j[1] - self.calculate(j[0], variable)))
 
                 variables_results.append((variable, statistics.mean(losses)))
@@ -143,11 +149,11 @@ class NorthYork:
             # print(len(continue_vars))
             # print(continue_vars)
 
-            # for i in range(0, int(len(continue_vars) / 2)):
-            #     gene_one = continue_vars.pop(0)[0]
-            #     gene_two = continue_vars.pop(-1)[0]
-            #     new_genes.append(self.breed(gene_one, gene_two))
-            #     # print("breed")
+            for i in range(0, int(len(continue_vars) / 2)):
+                gene_one = continue_vars.pop(0)[0]
+                gene_two = continue_vars.pop(-1)[0]
+                new_genes.append(self.breed(gene_one, gene_two))
+                # print("breed")
 
             new_genes.append(variables[0][0])
 
@@ -156,8 +162,8 @@ class NorthYork:
                 # print("mutate")
 
 
-                # mutated_variables = self.mutate(continue_vars[random.randint(0, len(continue_vars)) - 1][0], mutation_value)
-                # print(mutated_variables)
+                # mutated_variables = self.mutate(continue_vars[random.randint(0, len(continue_vars)) - 1][0], mutation_value, mutation_unit)
+                # # print(mutated_variables)
                 # new_genes.append(mutated_variables)
 
                 new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value, mutation_unit))
@@ -175,7 +181,14 @@ class NorthYork:
             variables = new_genes
             # pprint.pprint(variables)
             self.done_train_steps += 1
+            # print(variables)
+            self.variables = variables
             # print("done")
+
+            if self.done_train_steps % 10 == 0:
+                save_file = open(self.save, "w")
+                print("write")
+                save_file.write(str(variables[0]))
 
 
     def calculate(self, input_data, variables=None):
