@@ -68,7 +68,7 @@ class NorthYork:
         # print(new_gene)
         return new_gene
 
-    def mutate(self, gene, mutation_level=None):
+    def mutate(self, gene, mutation_level=None, mutation_unit=1):
         # print("m " + str(gene))
         if mutation_level == None:
             mutation_level = random.randint(0, 50)
@@ -76,15 +76,18 @@ class NorthYork:
 
         while not mutation_level <= 0:
 
+            # print(mutation_level)
+
             new_gene = []
             for j in range(0, len(gene)):
                 dna_to_change = random.randint(0, len(gene))
                 if dna_to_change == j:
-                    change_level = random.randint(0, round(orig_mutation_level / 10))
-                    mutation_level -= change_level
+                    change_level = random.randint(0, round(orig_mutation_level * (1 / mutation_unit)))
+                    # print(change_level * mutation_unit)
+                    mutation_level -= change_level * mutation_unit
                     if random.getrandbits(1):
                         change_level *= -1
-                    new_gene.append(mutation_level + change_level)
+                    new_gene.append(mutation_level + change_level * mutation_unit)
                 else:
                     new_gene.append(gene[j])
             gene = new_gene
@@ -92,7 +95,7 @@ class NorthYork:
         # print("n " + str(new_gene))
         return new_gene
 
-    def train(self, training_data, mutation_value):
+    def train(self, training_data, mutation_value, mutation_unit=1):
         if self.done_train_steps == 0:
             if not self.input_data_num == 1:
                 var_num = self.input_data_num * 4 + 3
@@ -139,11 +142,12 @@ class NorthYork:
             new_genes = []
             # print(len(continue_vars))
             # print(continue_vars)
-            for i in range(0, int(len(continue_vars) / 2)):
-                gene_one = continue_vars.pop(0)[0]
-                gene_two = continue_vars.pop(-1)[0]
-                new_genes.append(self.breed(gene_one, gene_two))
-                # print("breed")
+
+            # for i in range(0, int(len(continue_vars) / 2)):
+            #     gene_one = continue_vars.pop(0)[0]
+            #     gene_two = continue_vars.pop(-1)[0]
+            #     new_genes.append(self.breed(gene_one, gene_two))
+            #     # print("breed")
 
             new_genes.append(variables[0][0])
 
@@ -156,8 +160,8 @@ class NorthYork:
                 # print(mutated_variables)
                 # new_genes.append(mutated_variables)
 
-                # new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value))
-                new_genes.append(self.breed(new_genes[random.randint(0, len(new_genes)) - 1], new_genes[random.randint(0, len(new_genes)) - 1]))
+                new_genes.append(self.mutate(new_genes[random.randint(0, len(new_genes)) - 1], mutation_value, mutation_unit))
+                # new_genes.append(self.breed(new_genes[random.randint(0, len(new_genes)) - 1], new_genes[random.randint(0, len(new_genes)) - 1]))
 
                 # print("mutated")
 
